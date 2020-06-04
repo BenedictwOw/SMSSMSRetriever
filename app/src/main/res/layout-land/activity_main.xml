@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,6 +9,11 @@
     android:paddingTop="15dp"
     android:orientation="horizontal"
     tools:context="com.myapplicationdev.android.smsretriever.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
     <FrameLayout
         android:id="@+id/frame1"
@@ -22,4 +27,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"/>
 
-</LinearLayout>
+    </LinearLayout>
+
+
+</ScrollView>

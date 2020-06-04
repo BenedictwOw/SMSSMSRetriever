@@ -1,13 +1,22 @@
 package com.myapplicationdev.android.smsretriever;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.PermissionChecker;
 import androidx.fragment.app.Fragment;
 
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 /**
@@ -16,8 +25,10 @@ import android.widget.TextView;
  * create an instance of this fragment.
  */
 public class FragmentSecond extends Fragment {
-    Button btnAddText;
-    TextView tvFrag2;
+    Button btnRetrieve2,btnEmail;
+    TextView tvSms2;
+    EditText etWord;
+    String word,content;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -63,18 +74,98 @@ public class FragmentSecond extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_second, container,false);
-        tvFrag2 = view.findViewById(R.id.tvFrag2);
-        btnAddText = view.findViewById(R.id.btnRetrieve2);
+        View view = inflater.inflate(R.layout.fragment_second, container, false);
 
-        btnAddText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String data = tvFrag2.getText().toString() + "\n" + "New Data F2";
-                tvFrag2.setText(data);
-            }
-        });
+            tvSms2 = view.findViewById(R.id.tvFrag2);
+            etWord = view.findViewById(R.id.etWord);
+            btnRetrieve2 = view.findViewById(R.id.btnRetrieve2);
+            btnEmail = view.findViewById(R.id.btnEmail);
+            btnRetrieve2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int permissionCheck = PermissionChecker.checkSelfPermission
+                            (getActivity(), Manifest.permission.READ_SMS);
 
-        return view;
+                    if (permissionCheck != PermissionChecker.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.READ_SMS}, 0);
+                        // stops the action from proceeding further as permission not
+                        //  granted yet
+                        return;
+                    }
+                    // Create all messages URI
+                    Uri uri = Uri.parse("content://sms");
+                    // The columns we want
+                    //  date is when the message took place
+                    //  address is the number of the other party
+                    //  body is the message content
+                    //  type 1 is received, type 2 sent
+                    String[] reqCols = new String[]{"date", "address", "body", "type"};
+
+                    // Get Content Resolver object from which to
+                    //  query the content provider
+                    ContentResolver cr = getActivity().getContentResolver();
+                    // The filter String
+                    word = etWord.getText().toString();
+
+                   String [] seperated = word.split(" ");
+                    String filter= "";
+                    // The matches for the ?
+                    String[] filterArgs = new String[]{};
+                    if(seperated.length == 1){
+                        filter ="body LIKE ?";
+                        filterArgs = new String[]{"%" + seperated[0] + "%"};
+                    }
+                    if(seperated.length == 2){
+                        filter = "body LIKE ? OR body LIKE?";
+                        filterArgs = new String[]{"%" + seperated[0] + "%","%" + seperated[1] + "%"};
+                    }
+
+                    // Fetch SMS Message from Built-in Content Provider
+
+                    Cursor cursor = cr.query(uri, reqCols, filter, filterArgs, null);
+                    // Fetch SMS Message from Built-in Content Provider
+                    String smsBody = "";
+                    if (cursor.moveToFirst()) {
+                        do {
+                            long dateInMillis = cursor.getLong(0);
+                            String date = (String) DateFormat
+                                    .format("dd MMM yyyy h:mm:ss aa", dateInMillis);
+                            String address = cursor.getString(1);
+                            String body = cursor.getString(2);
+                            String type = cursor.getString(3);
+                            type = "Sent:";
+
+                            smsBody += type + " " + address + "\n at " + date
+                                    + "\n\"" + body + "\"\n\n";
+                        } while (cursor.moveToNext());
+                    }
+                    tvSms2.setText(smsBody);
+                }
+            });
+            btnEmail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    content=tvSms2.getText().toString();
+                    // The action you want this intent to do;
+                    // ACTION_SEND is used to indicate sending text
+                    Intent email = new Intent(Intent.ACTION_SEND);
+                    // Put essentials like email address, subject & body text
+                    email.putExtra(Intent.EXTRA_EMAIL,
+                            new String[]{"benedictlim@hotmail.sg"});
+                    email.putExtra(Intent.EXTRA_TEXT,
+                           content);
+                    // This MIME type indicates email
+                    email.setType("message/rfc822");
+                    // createChooser shows user a list of app that can handle
+                    // this MIME type, which is, email
+                    startActivity(Intent.createChooser(email,
+                            "Choose an Email client :"));
+
+                }
+            });
+
+            return view;
+        }
     }
-}
+

@@ -16,6 +16,12 @@
             android:layout_height="wrap_content"
             android:text="Only SMS containing this number" />
 
+        <EditText
+            android:id="@+id/etNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10" />
+
         <Button
             android:id="@+id/btnRetrieve1"
             android:layout_width="wrap_content"
