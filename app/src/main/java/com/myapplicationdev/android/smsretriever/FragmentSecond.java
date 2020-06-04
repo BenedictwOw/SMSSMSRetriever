@@ -28,7 +28,7 @@ public class FragmentSecond extends Fragment {
     Button btnRetrieve2,btnEmail;
     TextView tvSms2;
     EditText etWord;
-    String word,content;
+    String word,body;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -132,7 +132,7 @@ public class FragmentSecond extends Fragment {
                             String date = (String) DateFormat
                                     .format("dd MMM yyyy h:mm:ss aa", dateInMillis);
                             String address = cursor.getString(1);
-                            String body = cursor.getString(2);
+                            body = cursor.getString(2);
                             String type = cursor.getString(3);
                             type = "Sent:";
 
@@ -146,7 +146,7 @@ public class FragmentSecond extends Fragment {
             btnEmail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    content=tvSms2.getText().toString();
+
                     // The action you want this intent to do;
                     // ACTION_SEND is used to indicate sending text
                     Intent email = new Intent(Intent.ACTION_SEND);
@@ -154,7 +154,7 @@ public class FragmentSecond extends Fragment {
                     email.putExtra(Intent.EXTRA_EMAIL,
                             new String[]{"benedictlim@hotmail.sg"});
                     email.putExtra(Intent.EXTRA_TEXT,
-                           content);
+                           body);
                     // This MIME type indicates email
                     email.setType("message/rfc822");
                     // createChooser shows user a list of app that can handle
